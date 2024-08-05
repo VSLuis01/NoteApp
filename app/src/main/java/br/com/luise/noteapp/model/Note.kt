@@ -7,5 +7,5 @@ data class Note(
     val id: UUID = UUID.randomUUID(),
     val title: String,
     val description: String,
-    val entryDae: LocalDateTime = LocalDateTime.now()
+    val entryDate: LocalDateTime = LocalDateTime.now()
 )
