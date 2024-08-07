@@ -86,7 +86,7 @@ dependencies {
     // To use Kotlin annotation processing tool (kapt)
     kapt(libs.room.compiler)
 
-    //Android Corountines
+    //Android Coroutines
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.play.services)
