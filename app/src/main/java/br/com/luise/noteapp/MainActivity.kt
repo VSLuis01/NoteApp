@@ -19,7 +19,9 @@ import br.com.luise.noteapp.model.Note
 import br.com.luise.noteapp.screen.NoteScreen
 import br.com.luise.noteapp.screen.NoteViewModel
 import br.com.luise.noteapp.ui.theme.NoteAppTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
