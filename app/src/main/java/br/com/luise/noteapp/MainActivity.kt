@@ -4,18 +4,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
-import br.com.luise.noteapp.data.NotesDataSource
-import br.com.luise.noteapp.model.Note
 import br.com.luise.noteapp.screen.NoteScreen
 import br.com.luise.noteapp.screen.NoteViewModel
 import br.com.luise.noteapp.ui.theme.NoteAppTheme
@@ -29,7 +22,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             NoteAppTheme {
                 Surface(color = MaterialTheme.colorScheme.background) {
-                    val noteViewModel: NoteViewModel by viewModels()
+                    //val noteViewModel: NoteViewModel by viewModels()
+                    val noteViewModel = viewModel<NoteViewModel>()
 
                     NotesApp(noteViewModel)
                 }
@@ -40,11 +34,10 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun NotesApp(noteViewModel: NoteViewModel = viewModel()) {
-    val notesList = noteViewModel.getAllNotes()
+    val notesList = noteViewModel.noteList.collectAsState().value
 
-    NoteScreen(notes = notesList, onAddNote = {
-        noteViewModel.addNote(it)
-    }, onRemoveNote = {
-        noteViewModel.removeNote(it)
-    })
+    NoteScreen(notes = notesList,
+        onAddNote = { noteViewModel.addNote(it) },
+        onRemoveNote = { noteViewModel.removeNote(it) },
+        onUpdateNote = { noteViewModel.updateNote(it) })
 }

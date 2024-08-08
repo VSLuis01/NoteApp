@@ -1,8 +1,8 @@
 package br.com.luise.noteapp.screen
 
-import android.content.Context
 import android.widget.Toast
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -38,10 +38,18 @@ import br.com.luise.noteapp.components.NoteInputText
 import br.com.luise.noteapp.data.NotesDataSource
 import br.com.luise.noteapp.model.Note
 import br.com.luise.noteapp.util.formatDate
+import java.time.Instant
+import java.util.Date
+import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NoteScreen(notes: List<Note>, onAddNote: (Note) -> Unit, onRemoveNote: (Note) -> Unit) {
+fun NoteScreen(
+    notes: List<Note>,
+    onAddNote: (Note) -> Unit,
+    onRemoveNote: (Note) -> Unit,
+    onUpdateNote: (Note) -> Unit
+) {
     var title by remember {
         mutableStateOf("")
     }
@@ -50,7 +58,15 @@ fun NoteScreen(notes: List<Note>, onAddNote: (Note) -> Unit, onRemoveNote: (Note
         mutableStateOf("")
     }
 
+    var uuid by remember {
+        mutableStateOf("0")
+    }
+
     val context = LocalContext.current
+
+    var isUpdate by remember {
+        mutableStateOf(false)
+    }
 
     Column(modifier = Modifier.padding(6.dp)) {
         TopAppBar(
@@ -83,14 +99,25 @@ fun NoteScreen(notes: List<Note>, onAddNote: (Note) -> Unit, onRemoveNote: (Note
                     if (it.all { char -> char.isLetter() || char.isWhitespace() }) description = it
                 })
 
-            NoteButton(text = "Salvar", onClick = {
-                if (title.isNotEmpty() && description.isNotEmpty()) {
+            NoteButton(text = if (isUpdate) "Atualizar" else "Salvar", onClick = {
+                if (title.isNotBlank() && description.isNotBlank()) {
                     // save/add
-                    onAddNote(Note(title = title, description = description))
+                    if (isUpdate) {
+                        onUpdateNote(Note(id = UUID.fromString(uuid), title = title.trim(), description = description.trim(), entryDate = Date.from(Instant.now())))
+                    } else {
+                        onAddNote(Note(title = title.trim(), description = description.trim()))
+                    }
                     title = ""
                     description = ""
+                    uuid = "0"
 
-                    Toast.makeText(context, "Note Added", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        if (isUpdate) "Nota atualizada" else "Nota adicionada",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    isUpdate = false
                 }
             })
         }
@@ -99,7 +126,13 @@ fun NoteScreen(notes: List<Note>, onAddNote: (Note) -> Unit, onRemoveNote: (Note
 
         LazyColumn {
             items(notes) { note ->
-                NoteRow(note = note) {
+                NoteRow(note = note, onNoteLongClicked = {
+                    isUpdate = true
+
+                    title = note.title
+                    description = note.description
+                    uuid = note.id.toString()
+                }) {
                     onRemoveNote(note)
                 }
             }
@@ -109,8 +142,14 @@ fun NoteScreen(notes: List<Note>, onAddNote: (Note) -> Unit, onRemoveNote: (Note
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun NoteRow(modifier: Modifier = Modifier, note: Note, onNoteClicked: (Note) -> Unit) {
+fun NoteRow(
+    modifier: Modifier = Modifier,
+    note: Note,
+    onNoteLongClicked: (Note) -> Unit,
+    onNoteClicked: (Note) -> Unit
+) {
     Surface(
         modifier = modifier
             .padding(4.dp)
@@ -122,7 +161,9 @@ fun NoteRow(modifier: Modifier = Modifier, note: Note, onNoteClicked: (Note) -> 
     ) {
         Column(
             modifier = modifier
-                .clickable { onNoteClicked(note) }
+                .combinedClickable(onLongClick = { onNoteLongClicked(note) }) {
+                    onNoteClicked(note)
+                }
                 .padding(horizontal = 13.dp, vertical = 12.dp),
             horizontalAlignment = Alignment.Start
         ) {
@@ -141,5 +182,5 @@ fun NoteRow(modifier: Modifier = Modifier, note: Note, onNoteClicked: (Note) -> 
 @Preview(showBackground = true)
 @Composable
 fun NotesScreenPreview() {
-    NoteScreen(notes = NotesDataSource().loadNotes(), onAddNote = {}, onRemoveNote = {})
+    NoteScreen(notes = NotesDataSource().loadNotes(), onAddNote = {}, onRemoveNote = {}, onUpdateNote = {})
 }
