@@ -22,6 +22,7 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
     }
 
     buildTypes {
@@ -84,7 +85,11 @@ dependencies {
     annotationProcessor(libs.androidx.room.compiler)
 
     // To use Kotlin annotation processing tool (kapt)
-    kapt(libs.room.compiler)
+    //noinspection KaptUsageInsteadOfKsp
+    kapt(libs.androidx.room.compiler)
+
+    // optional - Kotlin Extensions and Coroutines support for Room
+    implementation(libs.androidx.room.ktx)
 
     //Android Coroutines
     implementation(libs.kotlinx.coroutines.android)
@@ -92,13 +97,9 @@ dependencies {
     implementation(libs.kotlinx.coroutines.play.services)
 
 
-    // optional - Kotlin Extensions and Coroutines support for Room
-    implementation(libs.androidx.room.ktx)
-
-
     // hilt
-    implementation(libs.hilt.android)
-    kapt(libs.hilt.android.compiler)
+    implementation (libs.hilt.android.v252)
+    kapt (libs.hilt.compiler)
 }
 
 // Allow references to generated code
