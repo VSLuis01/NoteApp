@@ -37,7 +37,7 @@ import br.com.luise.noteapp.components.NoteButton
 import br.com.luise.noteapp.components.NoteInputText
 import br.com.luise.noteapp.data.NotesDataSource
 import br.com.luise.noteapp.model.Note
-import java.time.format.DateTimeFormatter
+import br.com.luise.noteapp.util.formatDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -128,10 +128,10 @@ fun NoteRow(modifier: Modifier = Modifier, note: Note, onNoteClicked: (Note) -> 
         ) {
             Text(text = note.title, style = MaterialTheme.typography.titleSmall)
             Text(text = note.description, style = MaterialTheme.typography.titleSmall)
-            /*Text(
-                text = note.entryDate.format(DateTimeFormatter.ofPattern("EEE, d MMM")),
+            Text(
+                text = formatDate(note.entryDate.time),
                 style = MaterialTheme.typography.bodySmall
-            )*/
+            )
 
         }
     }
